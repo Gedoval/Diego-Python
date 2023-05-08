@@ -1,0 +1,28 @@
+version: '3.1'
+
+services:
+
+  db:
+    image: mysql:8.0
+    command: --default-authentication-plugin=mysql_native_password
+    restart: always
+    environment:
+      MYSQL_PASSWORD: diegoPelado
+      MYSQL_DATABASE: test
+    ports:
+      - "3306:3306"
+    volumes:
+      - "./init/init.sql:/docker-entrypoint-initdb.d/init.sql"
+  db_seeder:
+    image: mysql:8.0
+    volumes:
+      - "./init/init.sql:/init.sql"
+    entrypoint: [ "bash", "-c", "sleep 10 && mysql --user=root --password=diegoPelado --host=db --port=3306 < /init.sql && exit" ]
+    depends_on:
+      - db
+
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - "8080:8080"
